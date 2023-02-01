@@ -11,8 +11,9 @@ datasource db {
 }
 
 model Item {
-    id   String @id @default(cuid())
-    name String
+    id      String  @id @default(cuid())
+    name    String
+    checked Boolean
 }
 
 model User {

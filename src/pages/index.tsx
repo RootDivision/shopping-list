@@ -1,17 +1,30 @@
 import Head from "next/head";
+import { useState } from "react";
+import clsx from "clsx";
 
 import { type NextPage } from "next";
 import { api } from "../utils/api";
 import ItemModal from "../components/itemModal";
-import { useState } from "react";
 
 const Home: NextPage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { data: items, isLoading, refetch } = api.item.getAll.useQuery();
 
-  const { data: item } = api.item.getUnique.useQuery({
-    id: "c6bfc518-e888-4626-82fd-14ad7248f92c",
+  const { mutate: deleteItem } = api.item.deleteItem.useMutation({
+    onSuccess: async () => {
+      await refetch();
+    },
   });
+
+  const { mutate: checkItem } = api.item.checkItem.useMutation({
+    onSuccess: async () => {
+      await refetch();
+    },
+  });
+
+  // const { data: item } = api.item.getUnique.useQuery({
+  //   id: "c6bfc518-e888-4626-82fd-14ad7248f92c",
+  // });
 
   return (
     <>
@@ -31,18 +44,28 @@ const Home: NextPage = () => {
           </button>
         </div>
 
-        <ol>
+        <ul>
           {!isLoading && items ? (
-            items.map(({ id, name }) => <li key={id}>{name}</li>)
+            items.map(({ id, name, checked }) => (
+              <li className="flex justify-between" key={id}>
+                <label
+                  className={clsx({ "line-through": !!checked })}
+                  onClick={() => checkItem({ id, checked: !checked })}
+                >
+                  {name}
+                </label>
+                <button onClick={() => deleteItem({ id })}>Delete</button>
+              </li>
+            ))
           ) : (
             <p>loading...</p>
           )}
-        </ol>
+        </ul>
 
         <h3>Unique</h3>
-        <div>
+        {/* <div>
           {item?.id} === {item?.name}
-        </div>
+        </div> */}
       </main>
     </>
   );
