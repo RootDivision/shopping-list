@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { type NextPage } from "next";
 import { api } from "../utils/api";
 import ItemModal from "../components/itemModal";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -22,10 +23,6 @@ const Home: NextPage = () => {
     },
   });
 
-  // const { data: item } = api.item.getUnique.useQuery({
-  //   id: "c6bfc518-e888-4626-82fd-14ad7248f92c",
-  // });
-
   return (
     <>
       <Head>
@@ -36,7 +33,7 @@ const Home: NextPage = () => {
 
       {modalOpen && <ItemModal setModalOpen={setModalOpen} refetch={refetch} />}
 
-      <main className="mx-auto max-w-xl bg-green-200">
+      <main className="mx-auto max-w-sm bg-green-200">
         <div className="flex justify-between">
           <h2 className="text-2xl font-semibold">My shopping list</h2>
           <button onClick={() => setModalOpen(true)} type="button">
@@ -44,28 +41,35 @@ const Home: NextPage = () => {
           </button>
         </div>
 
-        <ul>
+        <div className="flex flex-col">
           {!isLoading && items ? (
             items.map(({ id, name, checked }) => (
-              <li className="flex justify-between" key={id}>
-                <label
-                  className={clsx({ "line-through": !!checked })}
+              <div key={id} className="flex">
+                <input
+                  className="m-2"
+                  type="checkbox"
+                  checked={!!checked}
                   onClick={() => checkItem({ id, checked: !checked })}
+                ></input>
+
+                <Link className="flex-grow p-2" href={`/detail/${id}`}>
+                  <label className={clsx({ "line-through": !!checked })}>
+                    {name}
+                  </label>
+                </Link>
+                <button
+                  className="bg-red-300 p-2"
+                  onClick={() => deleteItem({ id })}
                 >
-                  {name}
-                </label>
-                <button onClick={() => deleteItem({ id })}>Delete</button>
-              </li>
+                  delete
+                </button>
+              </div>
             ))
           ) : (
             <p>loading...</p>
           )}
-        </ul>
-
+        </div>
         <h3>Unique</h3>
-        {/* <div>
-          {item?.id} === {item?.name}
-        </div> */}
       </main>
     </>
   );
